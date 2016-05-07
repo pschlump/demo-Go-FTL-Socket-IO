@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Go (golang) Socket.IO chat</title>
+<!--
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font: 13px Helvetica, Arial; }
+form { background: #000; padding: 3px; }
+form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+#messages { list-style-type: none; margin: 0; padding: 0; }
+#messages li { padding: 5px 10px; }
+#messages li:nth-child(odd) { background: #eee; }
+#box {
+	border: 2px solid black;
+	width: 600px;
+	height: 800px;
+	margin-left: auto;
+	margin-right: auto;
+}
+</style>
+-->
+<link rel="stylesheet" href="css/style.css" type="text/css">
+</head>
+<body>
+
+<div style="display: block;" class="category send-message modal fade in">
+<button type="button" class="close alert-close"><span>x</span></button>   
+<div class="send-message-technology-robot-img"></div> 
+<div>
+	<h1>Welcome: Chat Window</h1>	
+</div>
+<hr>
+<ul id="messages"></ul>
+<div class="send-message-form">
+	<input id="m" autocomplete="off" class="input-message form-control" placeholder="Type Your Message" type="text">
+	<button id="send" class="signup-prompt-category-submit submit-form btn btn-orange">Send</button>
+</div>
+</div>
+</div>
+<div class="modal-backdrop fade in"></div>
+
+<!--
+	<div id="box">
+		<ul id="messages"></ul>
+		<form action="">
+			<input id="m" autocomplete="off" /><button>Send</button>
+		</form>
+	</div>
+-->
+
+	<script src="/js/socket.io.js"></script>
+	<script src="/js/jquery-1.11.1.js"></script>
+	<script>
+		var socket = io();
+		// $('form').submit(function(){
+		$("#send").click(function(){
+			var msg = $('#m').val();
+			socket.emit('chat message', msg);
+			$('#messages').append($('<li>').text(msg));
+			$('#m').val('');
+			return false;
+		});
+		socket.on('chat message', function(msg){
+			$('#messages').append($('<li>').text(msg));
+		});
+	</script>
+</body>
+</html>
