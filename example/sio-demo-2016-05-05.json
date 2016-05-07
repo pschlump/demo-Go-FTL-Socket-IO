@@ -1,0 +1,11 @@
+{
+    "working_test_SocketIO_demo": { "LineNo":__LINE__,
+        "listen_to":[ "http://localhost:16001" ],
+        "plugins":[
+            { "SocketIO": { "LineNo":__LINE__,
+				"Paths":["/socket.io/","/socket.io"]
+			} },
+			{ "file_server": { "LineNo":__LINE__, "Root":"~/Projects/demo-Go-FTL-Socket-IO", "Paths":"/"  } }
+        ]
+    }
+}
