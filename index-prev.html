@@ -12,10 +12,7 @@
 }
 .pos1 {
 	position: relative;
-	bottom: 3px;
-}
-.input-message {
-	width: 94%;
+	bottom: -2px;
 }
 </style>
 </head>
@@ -36,8 +33,6 @@
 <div class="send-message-form">
 	<input id="m" autocomplete="off" class="input-message form-control pos1" placeholder="Type Your Message" type="text" onKeyPress="catchEnterKey(event, this)">
 	<button id="send" class="signup-prompt-category-submit submit-form btn btn-orange">Send</button>
-	<button id="ladu" class="signup-prompt-category-submit submit-form btn btn-orange">New User</button>
-	<button id="gbye" class="signup-prompt-category-submit submit-form btn btn-orange">Goodbye</button>
 </div>
 </div>
 </div>
@@ -46,7 +41,6 @@
 <script src="/js/socket.io.js"></script>
 <script src="/js/jquery-1.11.1.js"></script>
 <script>
-var socket = io();
 
 function catchEnterKey(e, input){
 	var code = (e.keyCode ? e.keyCode : e.which);
@@ -70,16 +64,7 @@ function updateScroll(){
 	element.scrollTop = element.scrollHeight;
 }
 
-$("#ladu").click(function(){
-	console.log ( "Login as different user");
-	return false;
-});
-
-$("#gbye").click(function(){
-	console.log ( "Good Bye!");
-	return false;
-});
-
+var socket = io();
 $("#send").click(function(){
 	var msg = $('#m').val();
 	// socket.emit('chat message', msg);
@@ -106,4 +91,3 @@ updateScroll();
 
 </body>
 </html>
-

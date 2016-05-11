@@ -226,3 +226,11 @@ a {
     display: inline-block;
 }
 
+@-moz-document url-prefix() {
+    .xyzzy {
+        color: red;
+    }
+	.input-message {
+		width: 72%;
+	}
+}
