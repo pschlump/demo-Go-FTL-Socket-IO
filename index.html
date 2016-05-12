@@ -10,59 +10,81 @@
 
 <div style="display: block;" class="category send-message modal fade in">
 <button type="button" class="close alert-close"><span>x</span></button>
-<div>
-	<h1>Welcome: Chat Window</h1>	<!-- name at top -->
+
+	<!-- =================================================== main =================================================== -->
+	<span>
+		<div>
+			<h1>Welcome: Chat Window</h1>	<!-- name at top -->
+		</div>
+		<hr>
+		<div id="scroll-div" class="stop-overflow chat">
+			<div id="messages" class="messages">
+			</div>
+		</div>
+		<div class="status-area">
+			<span id="statusa">&nbsp;status status status</span>
+		</div>
+		<div class="send-message-form">
+			<input id="m" autocomplete="off" class="input-message form-control pos1" placeholder="Type Your Message" type="text" onKeyPress="catchKey(event, this)">
+			<button id="send" class="signup-prompt-category-submit submit-form btn btn-orange">Send</button>
+			<button id="ladu" class="signup-prompt-category-submit submit-form btn btn-orange">New User</button>
+			<button id="gbye" class="signup-prompt-category-submit submit-form btn btn-orange">Goodbye</button>
+		</div>
+	</span>
+	<!-- =================================================== end =================================================== -->
+
+	<!-- =================================================== login =================================================== -->
+	<!-- =================================================== end =================================================== -->
+
 </div>
-<hr>
-<div id="scroll-div" class="stop-overflow chat">
-	<div id="messages" class="messages">
-	</div>
-</div>
-<div class="status-area">
-	<span id="statusa">&nbsp;status status status</span>
-</div>
-<div class="send-message-form">
-	<input id="m" autocomplete="off" class="input-message form-control pos1" placeholder="Type Your Message" type="text" onKeyPress="catchEnterKey(event, this)">
-	<button id="send" class="signup-prompt-category-submit submit-form btn btn-orange">Send</button>
-	<button id="ladu" class="signup-prompt-category-submit submit-form btn btn-orange">New User</button>
-	<button id="gbye" class="signup-prompt-category-submit submit-form btn btn-orange">Goodbye</button>
-</div>
-</div>
-</div>
+
 <div class="modal-backdrop fade in"></div>
 
 <script src="/js/socket.io.js"></script>
 <script src="/js/jquery-1.11.1.js"></script>
 <script>
-var socket = io();
 
+var socket = io();
+var typing_started = 0;
 var x = 1;
+var db1 = false;
 
 function sendMsg(){
 	var msg = $('#m').val();
-	socket.emit('msg', JSON.stringify( { "name":"chat", "body": msg } ));
-	if ( x == 0  ) {
-		$('#messages').append($('<div class="bubble">').text(msg));
-	} else if ( x == 1 ) {
-		$('#messages').append($('<div class="bubble bubble-alt yellow">').text(msg));
-	} else if ( x == 2 ) {
-		$('#messages').append($('<div class="bubble bubble-alt purple">').text(msg));
-	} else if ( x == 3 ) {
-		$('#messages').append($('<div class="bubble pink">').text(msg));
-	} else if ( x == 4 ) {
-		$('#messages').append($('<div class="bubble bubble-alt red">').text(msg));
-	} else if ( x == 5 ) {
-		$('#messages').append($('<div class="bubble gray">').text(msg));
-	} else {
-		$('#messages').append($('<div class="bubble bubble-alt green">').text(msg));
+	msg = msg.trim();
+	if ( msg === "" ) {
+		$('#m').val('');
+		return;
 	}
-	x++;
-	if ( x > 6 ) { x = 0; }
+	typing_started = 0;
+	$('#statusa').text("");
+	socket.emit('msg', JSON.stringify( { "name":"chat", "body": msg } ));
+	if ( db1 ) {
+		if ( x == 0  ) {
+			$('#messages').append($('<div class="bubble">').text(msg));
+		} else if ( x == 1 ) {
+			$('#messages').append($('<div class="bubble bubble-alt yellow">').text(msg));
+		} else if ( x == 2 ) {
+			$('#messages').append($('<div class="bubble bubble-alt purple">').text(msg));
+		} else if ( x == 3 ) {
+			$('#messages').append($('<div class="bubble pink">').text(msg));
+		} else if ( x == 4 ) {
+			$('#messages').append($('<div class="bubble bubble-alt red">').text(msg));
+		} else if ( x == 5 ) {
+			$('#messages').append($('<div class="bubble gray">').text(msg));
+		} else {
+			$('#messages').append($('<div class="bubble bubble-alt green">').text(msg));
+		}
+		x++;
+		if ( x > 6 ) { x = 0; }
+	} else {
+		$('#messages').append($('<div class="bubble blue">').text(msg));
+	}
 	updateScroll();
 	$('#m').val('');
 }
 
-function catchEnterKey(e, input){
+function catchKey(e, input){
 	var code = (e.keyCode ? e.keyCode : e.which);
 	if(code == 13) { //Enter keycode
 		sendMsg();
@@ -71,7 +93,11 @@ function catchEnterKey(e, input){
 	if(code == 27) { //ESC keycode
 		return false;
 	}
-	// xyzzy - On 1st char - send "is typeing message"
+
+	if ( typing_started === 0 ) {
+		typing_started = 1;
+		socket.emit('msg', JSON.stringify( { "name":"typeing", "body": "" } ));
+	}
 }
 
 function updateScroll(){
@@ -79,11 +105,19 @@ function updateScroll(){
 	element.scrollTop = element.scrollHeight;
 }
 
+// Switch back to login - sreen
 $("#ladu").click(function(){
 	console.log ( "Login as different user");
 	return false;
 });
 
+// Start chat session - with user name
+$("#start").click(function(){
+	console.log ( "Login as different user");
+	return false;
+});
+
+// End chat session
 $("#gbye").click(function(){
 	console.log ( "Good Bye!");
 	return false;
@@ -93,12 +127,8 @@ $("#send").click(function(){
 	sendMsg();
 	return false;
 });
-socket.on('chat message', function(msg){
-	$('#messages').append($('<div class="bubble you">').text(msg));
-	updateScroll();
-});
 socket.on('r:msg', function(body){
-	$('#messages').append($('<div class="bubble you">').text(msg));
+	$('#messages').append($('<div class="bubble bubble-alt purple">').text(body));
 	updateScroll();
 });
 socket.on('r:sta', function(body){
