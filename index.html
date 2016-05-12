@@ -4,6 +4,21 @@
 <title>Go (golang) Socket.IO chat</title>
 <link rel="stylesheet" href="css/style.css" type="text/css">
 <style>
+.hidden {
+	display: none;
+}
+.visible {
+}
+.select-color {
+    line-height: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.btn-green {
+    color: #fff;
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+}
 </style>
 </head>
 <body>
@@ -12,9 +27,9 @@
 <button type="button" class="close alert-close"><span>x</span></button>
 
 	<!-- =================================================== main =================================================== -->
-	<span>
+	<span id="chat-window" class="hidden">
 		<div>
-			<h1>Welcome: Chat Window</h1>	<!-- name at top -->
+			<h2><span id="my-name"></span></h2>	<!-- name at top -->
 		</div>
 		<hr>
 		<div id="scroll-div" class="stop-overflow chat">
@@ -22,7 +37,7 @@
 			</div>
 		</div>
 		<div class="status-area">
-			<span id="statusa">&nbsp;status status status</span>
+			<span id="statusa">&nbsp;</span>
 		</div>
 		<div class="send-message-form">
 			<input id="m" autocomplete="off" class="input-message form-control pos1" placeholder="Type Your Message" type="text" onKeyPress="catchKey(event, this)">
@@ -34,6 +49,30 @@
 	<!-- =================================================== end =================================================== -->
 
 	<!-- =================================================== login =================================================== -->
+	<span id="login-window" class="visible">
+		<div>
+			<h1>Welcome: Chat Login</h1>	<!-- name at top -->
+		</div>
+		<hr>
+		<div class="login-message-form">
+			<input id="user" class="input-message form-control" placeholder="Type Your Name" type="text">
+		</div>
+		<div class="loing-message-form select-color">
+			Pick A Color
+			<select id="color">
+				<option	selected value="blue"   > Blue   </option>
+				<option	         value="green"  > Green  </option>
+				<option	         value="red"    > Red    </option>
+				<option	         value="pink"   > Pink   </option>
+				<option	         value="purple" > Purple </option>
+				<option	         value="Gray"   > Gray   </option>
+				<option	         value="yellow" > Tan    </option>
+			</select>
+		</div>
+		<div class="loing-message-form">
+			<button id="start" class="signup-prompt-category-submit submit-form btn btn-green">Start Now</button>
+		</div>
+	</span>
 	<!-- =================================================== end =================================================== -->
 
 </div>
@@ -48,6 +87,8 @@ var socket = io();
 var typing_started = 0;
 var x = 1;
 var db1 = false;
+var user = "";
+var color = "";
 
 function sendMsg(){
 	var msg = $('#m').val();
@@ -58,7 +99,7 @@ function sendMsg(){
 	}
 	typing_started = 0;
 	$('#statusa').text("");
-	socket.emit('msg', JSON.stringify( { "name":"chat", "body": msg } ));
+	socket.emit('msg', JSON.stringify( { "name":"chat", "body":msg, "user":user } ));
 	if ( db1 ) {
 		if ( x == 0  ) {
 			$('#messages').append($('<div class="bubble">').text(msg));
@@ -78,7 +119,7 @@ function sendMsg(){
 		x++;
 		if ( x > 6 ) { x = 0; }
 	} else {
-		$('#messages').append($('<div class="bubble blue">').text(msg));
+		$('#messages').append($('<div class="bubble '+color+'">').text(msg));
 	}
 	updateScroll();
 	$('#m').val('');
@@ -96,7 +137,7 @@ function catchKey(e, input){
 
 	if ( typing_started === 0 ) {
 		typing_started = 1;
-		socket.emit('msg', JSON.stringify( { "name":"typeing", "body": "" } ));
+		socket.emit('msg', JSON.stringify( { "name":"typeing", "body":"", "user":user } ));
 	}
 }
 
@@ -104,10 +145,23 @@ function updateScroll(){
 	var element = document.getElementById("scroll-div");
 	element.scrollTop = element.scrollHeight;
 }
+$("#start").click(function(){
+	console.log ( "Start Chat");
+	$("#login-window").hide();
+	$("#chat-window").show();
+	user = $("#user").val();
+	$("#my-name").text(user);
+	color = $("#color").val();
+	console.log ( "user="+user+" color="+color );
+	return false;
+});
 
 // Switch back to login - sreen
 $("#ladu").click(function(){
 	console.log ( "Login as different user");
+	$("#login-window").show();
+	$("#chat-window").hide();
+	$("#user").val("");
 	return false;
 });
 
@@ -128,7 +182,12 @@ $("#send").click(function(){
 	return false;
 });
 socket.on('r:msg', function(body){
-	$('#messages').append($('<div class="bubble bubble-alt purple">').text(body));
+	var c = "purple";
+	if ( color == "purple" ) {
+		c = "gray";
+	} 
+	$('#messages').append($('<div class="bubble bubble-alt '+c+'">').text(body));
+	$('#statusa').text("");
 	updateScroll();
 });
 socket.on('r:sta', function(body){
